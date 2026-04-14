@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0f172a;
+  --color-cyanx: #22d3ee;
+  --color-electric: #38bdf8;
+  --font-sans: "Manrope", sans-serif;
+  --font-display: "Sora", sans-serif;
+  --font-tight: "Inter Tight", sans-serif;
+  --shadow-glow: 0 0 0 1px rgba(56,189,248,.25), 0 25px 80px rgba(15,23,42,.5);
+}
