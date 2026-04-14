@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mailänder IT | Services</title>
+    <meta
+      name="description"
+      content="Alle IT-Dienstleistungen von Mailänder IT auf einen Blick: Microsoft 365, Telefonie, Firewalls, Server, Support und mehr – für Unternehmen in Dinslaken und am Niederrhein."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#0f172a",
+              cyanx: "#22d3ee",
+              electric: "#38bdf8",
+            },
+            fontFamily: {
+              sans: ["Manrope", "sans-serif"],
+              display: ["Sora", "sans-serif"],
+              tight: ["Inter Tight", "sans-serif"],
+            },
+            boxShadow: {
+              glow: "0 0 0 1px rgba(56,189,248,.25), 0 25px 80px rgba(15,23,42,.5)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      :root { color-scheme: dark; }
+      body { background-color: #0b1120; }
+
+      .grid-background {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100vh; z-index: -1;
+        perspective: 4px; transform-style: preserve-3d;
+      }
+      .grid-pattern {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        transform: translateZ(-1px) scale(1.25);
+        background-image:
+          linear-gradient(rgba(0,255,242,0.05) 1px, transparent 1px),
+          linear-gradient(to right, rgba(0,255,242,0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(circle at center, white 0%, transparent 80%);
+      }
+
+      .glass {
+        background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.16);
+      }
+
+      .reveal {
+        opacity: 0; transform: translateY(24px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+      .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+      .mobile-drawer { transition: transform 0.35s ease; }
+      .mobile-drawer[data-open="false"] { transform: translateX(100%); }
+      .mobile-drawer[data-open="true"] { transform: translateX(0); }
+
+      /* ── hero ── */
+      .svc-hero {
+        position: relative; overflow: hidden;
+        border-radius: 1.75rem; padding: 1.5rem;
+        background:
+          radial-gradient(65% 90% at 15% 10%, rgba(15,40,80,0.9), transparent 45%),
+          radial-gradient(55% 85% at 88% 8%, rgba(10,30,60,0.7), transparent 42%),
+          radial-gradient(70% 90% at 10% 100%, rgba(0,50,80,0.5), transparent 54%),
+          linear-gradient(140deg, rgba(8,20,45,0.95), rgba(5,15,35,0.98));
+        box-shadow: 0 35px 80px rgba(2,6,23,0.3);
+      }
+      .svc-hero::before {
+        content: ""; position: absolute; inset: 0;
+        background:
+          linear-gradient(rgba(34,211,238,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px);
+        background-size: 80px 80px; opacity: 0.5; pointer-events: none;
+      }
+
+      /* ── service cards ── */
+      .svc-card {
+        --mx: 50%; --my: 50%;
+        position: relative; overflow: hidden;
+        border-radius: 1.15rem;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+        backdrop-filter: blur(16px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 22px 40px rgba(2,6,23,0.22);
+        transition: transform 260ms cubic-bezier(0.22,1,0.36,1), box-shadow 260ms ease;
+      }
+      .svc-card::before {
+        content: ""; position: absolute; inset: 0; border-radius: inherit;
+        background: radial-gradient(220px circle at var(--mx) var(--my), rgba(56,189,248,0.18), rgba(56,189,248,0) 62%);
+        opacity: 0; transition: opacity 220ms ease; pointer-events: none;
+      }
+      .svc-card:hover::before { opacity: 1; }
+      .svc-card:hover {
+        transform: translateY(-3px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 26px 44px rgba(2,6,23,0.28);
+      }
+
+      /* ── icon box ── */
+      .svc-icon {
+        width: 2.75rem; height: 2.75rem; flex-shrink: 0;
+        border-radius: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(56,189,248,0.1);
+        display: flex; align-items: center; justify-content: center;
+        color: rgb(125,211,252);
+      }
+      .svc-icon svg { width: 1.2rem; height: 1.2rem; }
+      .svc-icon img { width: 1.6rem; height: 1.6rem; object-fit: contain; }
+
+      /* ── group heading line ── */
+      .svc-group-title {
+        display: flex; align-items: center; gap: 0.9rem;
+        margin-bottom: 1rem;
+      }
+      .svc-group-title h2 {
+        font-family: "Sora", sans-serif;
+        font-size: 1.15rem; font-weight: 600;
+        color: rgb(186,230,253); white-space: nowrap;
+      }
+      .svc-group-title::after {
+        content: ""; height: 1px; flex: 1;
+        background: linear-gradient(90deg, rgba(56,189,248,0.3), rgba(56,189,248,0.03));
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-slate-100 antialiased">
+    <div class="grid-background">
+      <div class="grid-pattern"></div>
+    </div>
+    <a href="#main" class="sr-only focus:not-sr-only focus:p-3 focus:bg-slate-900 focus:text-white">Zum Inhalt springen</a>
+
+    <!-- ── Header ── -->
+    <header id="site-header" class="sticky top-0 z-50 border-b border-transparent">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="glass mt-3 mb-3 rounded-2xl px-4 py-3">
+          <div class="flex items-center justify-between gap-4">
+            <a href="index.html" class="flex items-center gap-3">
+              <img
+                src="Mailaender%20logo.png"
+                alt="Mailänder IT Logo"
+                class="h-20 w-auto rounded-md"
+              />
+              <div>
+                <p class="font-display text-sm tracking-wide text-slate-200">Mailänder IT</p>
+                <p class="text-xs text-slate-400">Dinslaken &amp; Region</p>
+              </div>
+            </a>
+
+            <nav class="hidden md:block" aria-label="Hauptnavigation">
+              <ul class="flex items-center gap-6 text-sm">
+                <li><a data-nav="home" class="hover:text-cyan-300" href="index.html">Home</a></li>
+                <li><a data-nav="services" class="hover:text-cyan-300" href="services.html">Services</a></li>
+                <li><a data-nav="telefonie" class="hover:text-cyan-300" href="telefonie.html">Telefonie</a></li>
+                <li><a data-nav="sicherheit" class="hover:text-cyan-300" href="sicherheit.html">Sicherheit</a></li>
+                <li><a data-nav="veeam" class="hover:text-cyan-300" href="veeam.html">Veeam Backup</a></li>
+              </ul>
+            </nav>
+
+            <button
+              id="menu-open"
+              type="button"
+              class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 bg-white/5"
+              aria-label="Menü öffnen"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
+            >
+              <span class="text-lg">☰</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Mobile drawer ── -->
+    <div id="menu-overlay" class="fixed inset-0 z-40 hidden bg-slate-950/70" aria-hidden="true"></div>
+    <aside
+      id="mobile-menu"
+      class="mobile-drawer fixed top-0 right-0 z-50 h-full w-80 max-w-[88vw] glass p-6 md:hidden"
+      data-open="false"
+      aria-label="Mobiles Menü"
+      aria-hidden="true"
+    >
+      <div class="mb-8 flex items-center justify-between">
+        <p class="font-display text-lg">Navigation</p>
+        <button id="menu-close" type="button" class="rounded-lg border border-white/20 px-3 py-1" aria-label="Menü schließen">✕</button>
+      </div>
+      <nav aria-label="Mobile Hauptnavigation">
+        <ul class="space-y-4 text-lg">
+          <li><a data-nav-mobile="home" class="block" href="index.html">Home</a></li>
+          <li><a data-nav-mobile="services" class="block" href="services.html">Services</a></li>
+          <li><a data-nav-mobile="telefonie" class="block" href="telefonie.html">Telefonie</a></li>
+          <li><a data-nav-mobile="sicherheit" class="block" href="sicherheit.html">Sicherheit</a></li>
+          <li><a data-nav-mobile="veeam" class="block" href="veeam.html">Veeam Backup</a></li>
+        </ul>
+      </nav>
+      <div class="mt-10 border-t border-white/15 pt-6 text-sm text-slate-300">
+        <p>+49 (0) 2064 627302 0</p>
+        <p>info@mailaender-it.de</p>
+        <p class="mt-2 text-slate-400">Mo–Fr 08:00–18:00 Uhr</p>
+      </div>
+    </aside>
+
+    <main id="main" class="mx-auto max-w-7xl px-4 pb-20 pt-12 sm:px-6 lg:px-8 lg:pt-16">
+
+      <!-- ── Hero ── -->
+      <section class="svc-hero mb-14 reveal" data-reveal>
+        <div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div class="max-w-2xl">
+            <p class="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
+              Leistungsübersicht
+            </p>
+            <h1 class="font-display text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+              Unsere wichtigsten<br class="hidden sm:block" />
+              <span class="text-cyan-300">Dienstleistungen</span>
+            </h1>
+            <p class="mt-5 text-base text-slate-300 sm:text-lg leading-relaxed">
+              Wir betreuen Unternehmen in Dinslaken und am Niederrhein rundum – von der Infrastruktur über sichere Kommunikation bis hin zu persönlichem Support vor Ort.
+            </p>
+          </div>
+
+          <!-- stat pills -->
+          <div class="flex flex-wrap gap-3 lg:flex-col lg:items-end lg:gap-4">
+            <div class="glass rounded-xl px-4 py-3 text-center min-w-[110px]">
+              <p class="font-display text-2xl font-bold text-cyan-300">15+</p>
+              <p class="text-xs text-slate-400 mt-0.5">Leistungen</p>
+            </div>
+            <div class="glass rounded-xl px-4 py-3 text-center min-w-[110px]">
+              <p class="font-display text-2xl font-bold text-cyan-300">25+</p>
+              <p class="text-xs text-slate-400 mt-0.5">Jahre Erfahrung</p>
+            </div>
+            <div class="glass rounded-xl px-4 py-3 text-center min-w-[110px]">
+              <p class="font-display text-2xl font-bold text-cyan-300">vor Ort</p>
+              <p class="text-xs text-slate-400 mt-0.5">Support</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           GROUP 1 — Kommunikation & Software
+      ══════════════════════════════════════════ -->
+      <section class="mb-10 reveal" data-reveal>
+        <div class="svc-group-title">
+          <h2>Kommunikation &amp; Software</h2>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Microsoft 365 -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <img src="Start Bilder/Microsoft_logo_2012.svg-768x164.webp" alt="Microsoft Logo" />
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Microsoft 365</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Cloud-first Kollaboration mit Teams, Exchange und SharePoint für produktive hybride Arbeitsumgebungen.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Telefonie -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <img src="Start Bilder/3CX_silver-advance.svg" alt="3CX Logo" />
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Telefonie</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Moderne VoIP-Telefonanlagen mit 3CX – skalierbar, mobil und vollständig administrierbar aus einer Oberfläche.
+            </p>
+            <a href="telefonie.html" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Mehr erfahren <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Software Beschaffung -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 5h.01M7 12h.01M7 19h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Software Beschaffung</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Lizenzmanagement und Softwarebeschaffung – vom Einzelplatz bis zur unternehmensweiten Volumenvereinbarung.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           GROUP 2 — Sicherheit
+      ══════════════════════════════════════════ -->
+      <section class="mb-10 reveal" data-reveal>
+        <div class="svc-group-title">
+          <h2>Sicherheit</h2>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Firewalls -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <img src="Start Bilder/sophuslogo.webp" alt="Sophos Logo" />
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Firewalls</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Next-Generation Perimeterschutz mit Sophos – saubere Netzsegmentierung, Intrusion Prevention und klare Richtlinien.
+            </p>
+            <a href="sicherheit.html" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Mehr erfahren <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Antivirus -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5c0 4.1-2.7 7.8-7 9-4.3-1.2-7-4.9-7-9V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.5 12.5l1.7 1.7 3.3-3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Antivirus &amp; Endpoint</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Managed Endpoint Protection für Clients und Server – zentrales Monitoring, Richtliniensteuerung und schnelle Incident-Reaktion.
+            </p>
+            <a href="sicherheit.html" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Mehr erfahren <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Mobile Device Management -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 18h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M9 6h6M9 9.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Mobile Device Management</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Zentrale Verwaltung von Smartphones, Tablets und Notebooks – Richtlinien, Remote Wipe und sichere App-Verteilung.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           GROUP 3 — Netzwerk & Infrastruktur
+      ══════════════════════════════════════════ -->
+      <section class="mb-10 reveal" data-reveal>
+        <div class="svc-group-title">
+          <h2>Netzwerk &amp; Infrastruktur</h2>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- WLAN -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">WLAN</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Professionelle WLAN-Planung und -Installation für stabile, flächendeckende Funknetze – auch in größeren Gebäuden und auf Firmengeländen.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Netzwerk -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="2" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="2" y="18" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="16" y="18" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.6"/><path d="M12 6v5M5 18v-3a2 2 0 012-2h10a2 2 0 012 2v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Netzwerk</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Planung, Aufbau und Betrieb von LAN-Infrastrukturen – strukturierte Verkabelung, Switches, VLANs und VPN-Anbindungen.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Server -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="3" y="14" width="18" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><circle cx="7" cy="6.5" r="1" fill="currentColor"/><circle cx="7" cy="17.5" r="1" fill="currentColor"/><path d="M11 6.5h6M11 17.5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Server</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Beschaffung, Einrichtung und Administration von physischen und virtuellen Servern – on-premise oder im Rechenzentrum.
+            </p>
+            <a href="veeam.html" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Backup-Schutz ansehen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           GROUP 4 — Endgeräte & Web
+      ══════════════════════════════════════════ -->
+      <section class="mb-10 reveal" data-reveal>
+        <div class="svc-group-title">
+          <h2>Endgeräte &amp; Web</h2>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Computer & Laptops -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="1.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Computer &amp; Laptops</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Beschaffung, Konfiguration und Wartung von Arbeitsplatz-PCs und Notebooks – passend zum jeweiligen Einsatzzweck ausgewählt.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Handy & Laptops -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 18h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Handys &amp; Tablets</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Einrichtung und Verwaltung mobiler Endgeräte für den Firmeneinsatz – inklusive sicherer E-Mail- und Datenzugriff unterwegs.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Websites -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M3 12h18M12 3c2.3 2.4 3.5 5.2 3.5 9S14.3 18.6 12 21M12 3c-2.3 2.4-3.5 5.2-3.5 9S9.7 18.6 12 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Websites</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Professionelle Unternehmenswebseiten mit sauberer technischer Basis, klarer Struktur und zuverlässigem Hosting.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           GROUP 5 — Cloud, Support & Beratung
+      ══════════════════════════════════════════ -->
+      <section class="mb-16 reveal" data-reveal>
+        <div class="svc-group-title">
+          <h2>Cloud, Support &amp; Beratung</h2>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Cloud Dienste -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 10a6 6 0 00-12 0 4 4 0 000 8h12a4 4 0 000-8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Cloud Dienste</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Migration und Betrieb in der Cloud – von Microsoft Azure über gehostete Server bis hin zu hybriden Unternehmensarchitekturen.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Support -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10z" stroke="currentColor" stroke-width="1.7"/><path d="M9.09 9a3 3 0 015.82 1c0 2-3 3-3 3M12 17h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Support</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Persönlicher IT-Support vor Ort oder per Fernwartung – schnelle Reaktionszeiten und ein fester Ansprechpartner für Ihr Unternehmen.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Kontakt aufnehmen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+          <!-- Beratung -->
+          <article class="svc-card p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="svc-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <h3 class="font-display text-lg font-semibold text-white">Beratung</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed flex-1">
+              Strategische IT-Beratung für Architektur-Entscheidungen, Investitionsplanung und technologische Weiterentwicklung Ihrer IT-Landschaft.
+            </p>
+            <a href="index.html#contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-300 hover:text-cyan-200 group mt-auto">
+              Beratungsgespräch anfragen <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ── CTA ── -->
+      <section class="reveal" data-reveal>
+        <div class="glass rounded-2xl p-8 sm:p-12 text-center">
+          <p class="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
+            Persönliche Beratung
+          </p>
+          <h2 class="font-display text-3xl font-semibold text-white sm:text-4xl">
+            Interessiert? Sprechen Sie uns an.
+          </h2>
+          <p class="mt-4 max-w-xl mx-auto text-slate-300">
+            Wir nehmen uns Zeit für Ihre Anfrage – egal ob kurzfristiger Supportbedarf oder langfristige IT-Partnerschaft.
+          </p>
+          <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href="index.html#contact"
+              class="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-400 px-7 py-3.5 text-sm font-bold text-slate-900 shadow-lg transition hover:bg-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            >
+              Zum Kontaktformular
+            </a>
+            <a
+              href="tel:+4920646273020"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-7 py-3.5 text-sm font-semibold text-slate-200 backdrop-blur transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+            >
+              +49 (0) 2064 627302 0
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="mt-16 border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <p class="mb-3 text-xs uppercase tracking-widest text-slate-500">Öffnungszeiten</p>
+            <ul class="space-y-1 text-sm text-slate-300">
+              <li>Mo–Fr 08:00–18:00 Uhr</li>
+              <li>Samstag: nach Rücksprache</li>
+              <li class="text-slate-500">Sa–So geschlossen</li>
+            </ul>
+          </div>
+          <div>
+            <p class="mb-3 text-xs uppercase tracking-widest text-slate-500">Kontakt</p>
+            <ul class="space-y-1 text-sm text-slate-300">
+              <li><a href="tel:+4920646273020" class="hover:text-cyan-300">+49 (0) 2064 627302 0</a></li>
+              <li><a href="mailto:info@mailaender-it.de" class="hover:text-cyan-300">info@mailaender-it.de</a></li>
+              <li class="text-slate-400">Dinslaken &amp; Region</li>
+            </ul>
+          </div>
+          <div>
+            <p class="mb-3 text-xs uppercase tracking-widest text-slate-500">Navigation</p>
+            <ul class="space-y-1 text-sm text-slate-300">
+              <li><a href="index.html" class="hover:text-cyan-300">Home</a></li>
+              <li><a href="services.html" class="hover:text-cyan-300">Services</a></li>
+              <li><a href="telefonie.html" class="hover:text-cyan-300">Telefonie</a></li>
+              <li><a href="sicherheit.html" class="hover:text-cyan-300">Sicherheit</a></li>
+              <li><a href="veeam.html" class="hover:text-cyan-300">Veeam Backup</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2025 Mailänder IT Beratung GmbH. Alle Rechte vorbehalten.</p>
+          <div class="flex items-center gap-4">
+            <a class="hover:text-cyan-300" href="impressum.html">Impressum</a>
+            <a class="hover:text-cyan-300" href="datenschutz.html">Datenschutz</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const key = "services";
+
+      // active nav
+      document.querySelectorAll("[data-nav], [data-nav-mobile]").forEach((link) => {
+        if (link.dataset.nav === key || link.dataset.navMobile === key) {
+          link.classList.add("text-cyan-300");
+        }
+      });
+
+      // pointer glow on service cards
+      document.querySelectorAll(".svc-card").forEach((card) => {
+        const reset = () => {
+          card.style.setProperty("--mx", "50%");
+          card.style.setProperty("--my", "50%");
+        };
+        card.addEventListener("pointermove", (e) => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+          card.style.setProperty("--my", `${e.clientY - r.top}px`);
+        });
+        card.addEventListener("pointerleave", reset);
+        reset();
+      });
+
+      // mobile menu
+      const header = document.getElementById("site-header");
+      const menuOpen = document.getElementById("menu-open");
+      const menuClose = document.getElementById("menu-close");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const menuOverlay = document.getElementById("menu-overlay");
+
+      function setMenu(open) {
+        mobileMenu.dataset.open = String(open);
+        mobileMenu.setAttribute("aria-hidden", String(!open));
+        menuOverlay.classList.toggle("hidden", !open);
+        menuOpen.setAttribute("aria-expanded", String(open));
+      }
+
+      menuOpen.addEventListener("click", () => setMenu(true));
+      menuClose.addEventListener("click", () => setMenu(false));
+      menuOverlay.addEventListener("click", () => setMenu(false));
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
+      document.querySelectorAll("#mobile-menu a").forEach((link) => {
+        link.addEventListener("click", () => setMenu(false));
+      });
+
+      // sticky header
+      window.addEventListener("scroll", () => {
+        const active = window.scrollY > 8;
+        header.classList.toggle("border-white/15", active);
+        header.classList.toggle("backdrop-blur", active);
+      });
+
+      // scroll reveal
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+
+      document.querySelectorAll("[data-reveal]").forEach((el, i) => {
+        el.classList.add("reveal");
+        el.style.transitionDelay = `${Math.min(i * 80, 320)}ms`;
+        observer.observe(el);
+      });
+    </script>
+  </body>
+</html>

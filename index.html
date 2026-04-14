@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lukas Mailänder</title>
+    <meta
+      name="description"
+      content="Willkommen bei Ihrem IT-Dienstleister im Herzen von Dinslaken. Von Hardware und Software über Netzwerktechnik bis hin zu Cloud-Produkten wie Microsoft 365."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#0f172a",
+              cyanx: "#22d3ee",
+              electric: "#38bdf8",
+            },
+            fontFamily: {
+              sans: ["Manrope", "sans-serif"],
+              display: ["Sora", "sans-serif"],
+              tight: ["Inter Tight", "sans-serif"],
+            },
+            boxShadow: {
+              glow: "0 0 0 1px rgba(56,189,248,.25), 0 25px 80px rgba(15,23,42,.5)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      body {
+        background-color: #0b1120;
+      }
+
+      .grid-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        z-index: -1;
+        
+        /* 
+          Parallax Effect with 3D Transforms:
+          - `perspective`: Creates the 3D space. A smaller value means a more extreme effect.
+          - `transform-style: preserve-3d`: Ensures children are transformed in that 3D space.
+        */
+        perspective: 4px;
+        transform-style: preserve-3d;
+      }
+
+      .grid-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        
+        /* 
+          The core of the parallax effect.
+          - `translateZ(-1px)`: Pushes the grid "back" into the 3D space.
+          - `scale(1.25)`: Scales the element up to counteract the shrinking effect of `translateZ`.
+          
+          Math: scale_factor = 1 + (translateZ / perspective)
+                1.25 = 1 + (-1 / 4)
+        */
+        transform: translateZ(-1px) scale(1.25);
+        
+        background-image: 
+          linear-gradient(rgba(0, 255, 242, 0.05) 1px, transparent 1px),
+          linear-gradient(to right, rgba(0, 255, 242, 0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+
+        /* Vignette effect to fade out the grid at the edges */
+        mask-image: radial-gradient(circle at center, white 0%, transparent 80%);
+      }
+
+      .glass {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+
+      .reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .mobile-drawer {
+        transition: transform 0.35s ease;
+      }
+
+      .mobile-drawer[data-open="false"] {
+        transform: translateX(100%);
+      }
+
+
+
+      .mobile-drawer[data-open="true"] {
+        transform: translateX(0);
+      }
+
+      .bento-section {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        padding: 1.25rem;
+        background:
+          radial-gradient(120% 130% at 8% 0%, rgba(56, 189, 248, 0.2), transparent 55%),
+          radial-gradient(90% 100% at 100% 100%, rgba(14, 165, 233, 0.18), transparent 60%),
+          linear-gradient(155deg, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.2));
+      }
+
+      .bento-section::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+          radial-gradient(1px 1px at 25% 35%, rgba(255, 255, 255, 0.2), transparent 60%),
+          radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.15), transparent 60%),
+          radial-gradient(1px 1px at 40% 80%, rgba(255, 255, 255, 0.13), transparent 60%);
+        background-size: 4px 4px, 3px 3px, 5px 5px;
+        opacity: 0.2;
+        pointer-events: none;
+      }
+
+      .bento-kicker {
+        font-family: "Inter Tight", sans-serif;
+        letter-spacing: 0.16em;
+      }
+
+      .bento-headline {
+        font-family: "Inter Tight", sans-serif;
+        letter-spacing: -0.03em;
+      }
+
+      .bento-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .bento-card {
+        --mx: 50%;
+        --my: 50%;
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.25rem;
+        padding: 1.25rem;
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+        backdrop-filter: blur(14px) saturate(120%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.28),
+          inset 0 -20px 40px rgba(15, 23, 42, 0.22),
+          0 22px 48px rgba(2, 6, 23, 0.18);
+        transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 300ms ease;
+      }
+
+      .bento-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.06) 45%, rgba(56, 189, 248, 0.05) 65%, rgba(56, 189, 248, 0.4));
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        opacity: 0.9;
+      }
+
+      .bento-card::after {
+        content: "";
+        position: absolute;
+        top: -56px;
+        right: -56px;
+        width: 180px;
+        height: 180px;
+        border-radius: 9999px;
+        background: radial-gradient(circle, rgba(34, 211, 238, 0.32) 0%, rgba(34, 211, 238, 0) 72%);
+        filter: blur(10px);
+        pointer-events: none;
+      }
+
+      .bento-card:hover {
+        transform: translateY(-3px);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.35),
+          inset 0 -20px 44px rgba(15, 23, 42, 0.3),
+          0 26px 56px rgba(2, 6, 23, 0.3);
+      }
+
+      .bento-pointer-glow {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(240px circle at var(--mx) var(--my), rgba(56, 189, 248, 0.22), rgba(56, 189, 248, 0) 60%);
+        opacity: 0;
+        transition: opacity 220ms ease;
+        pointer-events: none;
+      }
+
+      .bento-card:hover .bento-pointer-glow {
+        opacity: 1;
+      }
+
+      .bento-icon-wrap {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 0.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+      }
+
+      .bento-icon {
+        width: 1.35rem;
+        height: 1.35rem;
+        color: rgb(34 211 238);
+        transform-origin: center;
+        transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .bento-card:hover .icon-web {
+        transform: translateY(-2px) rotate(-8deg) scale(1.04);
+      }
+
+      .bento-card:hover .icon-crm {
+        animation: gear-spin 2.4s linear infinite;
+      }
+
+      .bento-card:hover .icon-ai {
+        animation: ai-pulse 1.7s ease-in-out infinite;
+      }
+
+      .bento-title {
+        font-family: "Inter Tight", sans-serif;
+        letter-spacing: -0.02em;
+      }
+
+      .bento-copy {
+        color: rgb(203 213 225);
+      }
+
+      .bento-spotlight {
+        background:
+          radial-gradient(120% 120% at 85% 12%, rgba(56, 189, 248, 0.24), transparent 55%),
+          linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04));
+      }
+
+      @keyframes gear-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes ai-pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 0 rgba(34, 211, 238, 0));
+        }
+        50% {
+          transform: scale(1.13);
+          filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.42));
+        }
+      }
+
+      @media (max-width: 767px) {
+        .bento-section {
+          padding: 0.85rem;
+          border-radius: 1.2rem;
+        }
+
+        .bento-card {
+          padding: 1rem;
+        }
+      }
+
+      /* ── Service cards ── */
+      .service-card {
+        --mx: 50%; --my: 50%;
+        position: relative; overflow: hidden;
+        border-radius: 1.25rem;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+        backdrop-filter: blur(16px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 22px 40px rgba(2,6,23,0.22);
+        transition: transform 260ms cubic-bezier(0.22,1,0.36,1), box-shadow 260ms ease;
+        padding: 1.75rem;
+      }
+      .service-card::before {
+        content: ""; position: absolute; inset: 0; border-radius: inherit;
+        background: radial-gradient(220px circle at var(--mx) var(--my), rgba(56,189,248,0.16), rgba(56,189,248,0) 62%);
+        opacity: 0; transition: opacity 220ms ease; pointer-events: none;
+      }
+      .service-card:hover::before { opacity: 1; }
+      .service-card:hover {
+        transform: translateY(-3px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 26px 44px rgba(2,6,23,0.28);
+      }
+
+      /* ── Contact form ── */
+      .form-field {
+        width: 100%;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.14);
+        border-radius: 0.75rem;
+        color: #f1f5f9;
+        font-family: Manrope, sans-serif;
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+        outline: none;
+        transition: border-color 220ms ease, background 220ms ease;
+      }
+      .form-field::placeholder { color: rgba(148,163,184,0.6); }
+      .form-field:focus {
+        border-color: rgba(34,211,238,0.5);
+        background: rgba(34,211,238,0.05);
+      }
+      textarea.form-field { resize: vertical; min-height: 130px; }
+
+      .logos-marquee {
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        min-height: 104px;
+        padding: 1rem 1.25rem;
+        border-radius: 1rem;
+        border: 0.5px solid rgba(148, 163, 184, 0.45);
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.38), rgba(15, 23, 42, 0.2));
+        backdrop-filter: blur(12px) saturate(120%);
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+          0 0 28px rgba(34, 211, 238, 0.12);
+        -webkit-mask-image: linear-gradient(
+          to right,
+          transparent 0%,
+          black 10%,
+          black 90%,
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          to right,
+          transparent 0%,
+          black 10%,
+          black 90%,
+          transparent 100%
+        );
+      }
+
+      .scrolling-logos {
+        display: flex;
+        align-items: center;
+        gap: clamp(2.5rem, 5vw, 4.75rem);
+        width: max-content;
+        will-change: transform;
+        transform: translate3d(0, 0, 0);
+      }
+
+      .logo-item {
+        flex: 0 0 auto;
+        min-height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo-item img {
+        height: clamp(28px, 3.8vw, 48px);
+        width: auto;
+        max-width: 190px;
+        object-fit: contain;
+        opacity: 0.55;
+        filter: grayscale(1) saturate(0.15);
+        transform: scale(1);
+        transform-origin: center;
+        transition:
+          filter 320ms ease,
+          opacity 320ms ease,
+          transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .logo-item:hover img {
+        opacity: 1;
+        filter: grayscale(0) saturate(1) drop-shadow(0 10px 20px rgba(8, 47, 73, 0.32));
+        transform: scale(1.1);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-slate-100 antialiased">
+    <div class="grid-background">
+      <div class="grid-pattern"></div>
+    </div>
+    <a href="#main" class="sr-only focus:not-sr-only focus:p-3 focus:bg-slate-900 focus:text-white">Zum Inhalt springen</a>
+
+    <header id="site-header" class="sticky top-0 z-50 border-b border-transparent">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="glass mt-3 mb-3 rounded-2xl px-4 py-3">
+          <div class="flex items-center justify-between gap-4">
+            <a href="index.html" class="flex items-center gap-3">
+              <img
+                src="Mailaender%20logo.png"
+                alt="Mailänder IT Logo"
+                class="h-20 w-auto rounded-md"
+              />
+              <div>
+                <p class="font-display text-sm tracking-wide text-slate-200">Lukas Mailänder</p>
+                <p class="text-xs text-slate-400">Dinslaken & Region</p>
+              </div>
+            </a>
+
+            <nav class="hidden md:block" aria-label="Hauptnavigation">
+              <ul class="flex items-center gap-6 text-sm">
+                <li><a class="text-cyan-300" href="index.html">Home</a></li>
+                <li><a class="hover:text-cyan-300" href="services.html">Services</a></li>
+                <li><a class="hover:text-cyan-300" href="telefonie.html">Telefonie</a></li>
+                <li><a class="hover:text-cyan-300" href="sicherheit.html">Sicherheit</a></li>
+                <li><a class="hover:text-cyan-300" href="veeam.html">Veeam Backup</a></li>
+              </ul>
+            </nav>
+
+            <button
+              id="menu-open"
+              type="button"
+              class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 bg-white/5"
+              aria-label="Menü öffnen"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
+            >
+              <span class="text-lg">☰</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div id="menu-overlay" class="fixed inset-0 z-40 hidden bg-slate-950/70" aria-hidden="true"></div>
+    <aside
+      id="mobile-menu"
+      class="mobile-drawer fixed top-0 right-0 z-50 h-full w-80 max-w-[88vw] glass p-6 md:hidden"
+      data-open="false"
+      aria-label="Mobiles Menü"
+      aria-hidden="true"
+    >
+      <div class="mb-8 flex items-center justify-between">
+        <p class="font-display text-lg">Menü</p>
+        <button id="menu-close" type="button" class="rounded-lg border border-white/20 px-3 py-1" aria-label="Menü schließen">✕</button>
+      </div>
+      <nav aria-label="Mobile Hauptnavigation">
+        <ul class="space-y-4 text-lg">
+          <li><a class="block text-cyan-300" href="index.html">Home</a></li>
+          <li><a class="block" href="services.html">Services</a></li>
+          <li><a class="block" href="telefonie.html">Telefonie</a></li>
+          <li><a class="block" href="sicherheit.html">Sicherheit</a></li>
+          <li><a class="block" href="veeam.html">Veeam Backup</a></li>
+        </ul>
+      </nav>
+      <div class="mt-10 border-t border-white/15 pt-6 text-sm text-slate-300">
+        <p>+49 (0) 2064 627302 0</p>
+        <p>info@mailaender-it.de</p>
+        <p class="mt-2 text-slate-400">Montag - Freitag: 08 bis 18 Uhr</p>
+      </div>
+    </aside>
+
+    <main id="main">
+      <section class="mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pt-20">
+        <div class="grid gap-10 lg:grid-cols-12 lg:items-center">
+          <div class="lg:col-span-8 reveal" data-reveal>
+            <h1 class="font-display text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+              Willkommen bei
+              <br />
+              Lukas Mailänder - IT Beratung und Services
+            </h1>
+            <p class="mt-6 max-w-3xl text-base text-slate-300 sm:text-lg">
+              Willkommen bei Ihrem IT-Dienstleister im Herzen von Dinslaken. Wir bieten Ihnen eine große Vielfalt an IT-Lösungen für Ihr Unternehmen. Von Hardware und Software über Netzwerktechnik bis hin zu Cloud-Produkten wie Microsoft 365 - wir sind Ihr zuverlässiger Partner für alle Ihre IT-Bedürfnisse. Lassen Sie sich von unseren maßgeschneiderten Lösungen überzeugen und entdecken Sie, wie wir Ihren Geschäftserfolg unterstützen können.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href="#leistungen" class="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Entdecken Sie unsere Leistungen</a>
+              <a href="#contact" class="rounded-xl border border-white/25 px-5 py-3 text-sm font-semibold text-white transition hover:border-cyan-300 hover:text-cyan-200">Kontaktieren Sie uns</a>
+            </div>
+          </div>
+
+          <div class="lg:col-span-4 reveal" data-reveal>
+            <div class="glass rounded-2xl p-6 shadow-glow">
+              <a href="https://custom.teamviewer.com/6xpim2x"><p class="text-sm uppercase tracking-widest text-cyan-200">Erreichbar unter</p></a>
+              <ul class="mt-4 space-y-3 text-sm text-slate-200">
+                <li>Telefon: +49 (0) 2064 627302 0</li>
+                <li>E-Mail: info@mailaender-it.de</li>
+                <li>Support: TeamViewer Session</li>
+                <li>Montag - Freitag: 08 bis 18 Uhr</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ LEISTUNGEN ═══ -->
+      <section id="leistungen" class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div class="mb-8 reveal" data-reveal>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Portfolio</p>
+          <h2 class="mt-2 font-display text-3xl font-semibold text-white sm:text-4xl">Entdecken Sie unsere Leistungen</h2>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+
+          <!-- IT-Dienstleistungen -->
+          <div class="service-card flex flex-col reveal" data-reveal>
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
+                <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+              </svg>
+            </div>
+            <h3 class="font-display text-lg font-semibold text-white">IT-Dienstleistungen</h3>
+            <div class="my-3 h-px bg-gradient-to-r from-cyan-400/30 to-transparent"></div>
+            <p class="text-sm text-slate-400 flex-1">Als Ihr externer IT-Dienstleister bieten wir Ihnen eine umfassende Betreuung Ihres gesamten Unternehmens – Netzwerkinfrastruktur, Hardware, Software und Cloud-Anwendungen wie Microsoft 365.</p>
+            <a href="services.html" class="mt-5 self-center rounded-lg bg-cyan-400/10 border border-cyan-400/30 px-4 py-2 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-400/20 hover:border-cyan-300">Mehr erfahren</a>
+          </div>
+
+          <!-- Telefoniesysteme -->
+          <div class="service-card flex flex-col reveal" data-reveal>
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.97 1.18 2 2 0 012.96 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+              </svg>
+            </div>
+            <h3 class="font-display text-lg font-semibold text-white">Telefoniesysteme</h3>
+            <div class="my-3 h-px bg-gradient-to-r from-cyan-400/30 to-transparent"></div>
+            <p class="text-sm text-slate-400 flex-1">Die beliebteste Dienstleistung unseres Hauses: eine 3CX-Telefonanlage in der Cloud. Verbinden Sie Mitarbeiter, Partner und Kunden via Audio oder Video – schnell, effizient und modern.</p>
+            <a href="telefonie.html" class="mt-5 self-center rounded-lg bg-cyan-400/10 border border-cyan-400/30 px-4 py-2 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-400/20 hover:border-cyan-300">Mehr erfahren</a>
+          </div>
+
+          <!-- Sicherheitstechnik -->
+          <div class="service-card flex flex-col reveal" data-reveal>
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <h3 class="font-display text-lg font-semibold text-white">Sicherheitstechnik</h3>
+            <div class="my-3 h-px bg-gradient-to-r from-cyan-400/30 to-transparent"></div>
+            <p class="text-sm text-slate-400 flex-1">Nicht nur IT-Security ist eine Herausforderung. Für Videoüberwachung und Alarmanlagen sind wir Ihr Partner – von der Beratung über die Installation bis zur Betreuung.</p>
+            <a href="sicherheit.html" class="mt-5 self-center rounded-lg bg-cyan-400/10 border border-cyan-400/30 px-4 py-2 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-400/20 hover:border-cyan-300">Mehr erfahren</a>
+          </div>
+
+          <!-- Veeam Backup -->
+          <div class="service-card flex flex-col reveal" data-reveal>
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+              </svg>
+            </div>
+            <h3 class="font-display text-lg font-semibold text-white">Veeam Backup</h3>
+            <div class="my-3 h-px bg-gradient-to-r from-cyan-400/30 to-transparent"></div>
+            <p class="text-sm text-slate-400 flex-1">Als Veeam-Partner implementieren wir zuverlässige Backup- und Disaster-Recovery-Lösungen für Ihre virtuellen, physischen und Cloud-Umgebungen.</p>
+            <a href="veeam.html" class="mt-5 self-center rounded-lg bg-cyan-400/10 border border-cyan-400/30 px-4 py-2 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-400/20 hover:border-cyan-300">Mehr erfahren</a>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="logos" class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8 overflow-hidden">
+        <div class="mb-8 reveal" data-reveal>
+          <h2 class="font-display text-3xl text-white sm:text-4xl">Technologien</h2>
+        </div>
+        <div class="logos-marquee">
+          <div class="scrolling-logos">
+            <div class="logo-item">
+              <img src="Start Bilder/tplink.jpg" alt="tplink logo" />
+            </div>
+            <div class="logo-item">
+              <img src="Start Bilder/Microsoft_logo_2012.svg-768x164.webp" alt="microsoft logo" />
+            </div>
+            <div class="logo-item">
+              <img src="Start Bilder/veeamlogo.png" alt="veeam logo" />
+            </div>
+            <div class="logo-item">
+              <img src="Start Bilder/3CX_silver-advance.svg" alt="3cx logo" />
+            </div>
+            <div class="logo-item">
+              <img src="Start Bilder/hetzner-logo.svg" alt="hetzner logo" />
+            </div>
+            <div class="logo-item">
+              <img src="Start Bilder/Microsoft_Azure_Logo-768x222.webp" alt="azure logo" />
+            </div>
+            <div class="logo-item">
+              <img src="Start Bilder/ahuatechlogo.webp" alt="ahua logo" />
+            </div>
+            <div class="logo-item">
+              <img src="Start Bilder/silveryearlogo.jpg" alt="silveryear logo" />
+            </div>
+            <div class="logo-item">
+              <img src="Start Bilder/sophuslogo.webp" alt="sophus logo" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ CONTACT ═══ -->
+      <section id="contact" class="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8 scroll-mt-28">
+        <div class="grid gap-8 lg:grid-cols-[1fr_1.6fr]">
+
+          <!-- Left: info cards -->
+          <div class="flex flex-col gap-6">
+            <div class="glass rounded-2xl p-6 reveal" data-reveal>
+              <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300/80">Überzeugen Sie sich selbst!</p>
+              <h2 class="mt-2 font-display text-3xl text-white">Kontaktieren Sie uns</h2>
+              <p class="mt-3 text-sm text-slate-400">Schreiben Sie uns – wir melden uns schnellstmöglich zurück und beraten Sie gerne zu Ihren IT-Anforderungen.</p>
+            </div>
+            <div class="glass rounded-2xl p-6 reveal" data-reveal>
+              <h3 class="font-display text-base font-semibold text-slate-300">Öffnungszeiten</h3>
+              <ul class="mt-3 space-y-1 text-sm text-slate-400">
+                <li>Montag – Freitag: 08 bis 18 Uhr</li>
+                <li>Samstag: nach Rücksprache</li>
+                <li>Sonn- und Feiertags: geschlossen</li>
+              </ul>
+            </div>
+            <div class="glass rounded-2xl p-6 reveal" data-reveal>
+              <h3 class="font-display text-base font-semibold text-slate-300">Direkt erreichbar</h3>
+              <ul class="mt-3 space-y-2 text-sm text-slate-400">
+                <li><a href="tel:+4920646723020" class="hover:text-cyan-300 transition">+49 (0) 2064 627302 0</a></li>
+                <li><a href="mailto:info@mailaender-it.de" class="hover:text-cyan-300 transition">info@mailaender-it.de</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Right: contact form -->
+          <div class="glass rounded-2xl p-7 reveal" data-reveal>
+            <!--
+              SETUP: Register a free account at https://formspree.io, create a form for
+              info@mailaender-it.de and replace YOUR_FORM_ID below with your actual form ID.
+              Example: action="https://formspree.io/f/xrgjakwv"
+            -->
+            <form id="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+              <input type="hidden" name="_subject" value="Neue Kontaktanfrage – Mailänder IT" />
+              <input type="hidden" name="_next" value="index.html#contact" />
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="cf-name" class="block mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Name *</label>
+                  <input id="cf-name" name="name" type="text" required placeholder="Ihr Name" class="form-field" />
+                </div>
+                <div>
+                  <label for="cf-email" class="block mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">E-Mail *</label>
+                  <input id="cf-email" name="email" type="email" required placeholder="ihre@email.de" class="form-field" />
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <label for="cf-phone" class="block mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Telefon <span class="normal-case font-normal text-slate-500">(optional)</span></label>
+                <input id="cf-phone" name="telefon" type="tel" placeholder="+49 ..." class="form-field" />
+              </div>
+
+              <div class="mt-4">
+                <label for="cf-subject" class="block mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Betreff</label>
+                <input id="cf-subject" name="betreff" type="text" placeholder="Womit können wir helfen?" class="form-field" />
+              </div>
+
+              <div class="mt-4">
+                <label for="cf-message" class="block mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Nachricht *</label>
+                <textarea id="cf-message" name="nachricht" required placeholder="Ihre Nachricht …" class="form-field"></textarea>
+              </div>
+
+              <div class="mt-4 flex items-start gap-3">
+                <input id="cf-privacy" name="datenschutz" type="checkbox" required class="mt-0.5 h-4 w-4 flex-shrink-0 cursor-pointer rounded border-white/20 bg-white/10 accent-cyan-400" />
+                <label for="cf-privacy" class="text-xs text-slate-400 leading-relaxed">
+                  Ich habe die <a href="datenschutz.html" class="text-cyan-300 hover:underline">Datenschutzerklärung</a> gelesen und erkläre mich mit der Verarbeitung meiner Daten zur Bearbeitung meiner Anfrage einverstanden.*
+                </label>
+              </div>
+
+              <button id="cf-submit" type="submit"
+                class="mt-6 w-full rounded-xl bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 disabled:opacity-60">
+                Nachricht senden
+              </button>
+
+              <p id="cf-success" class="mt-4 hidden rounded-xl bg-cyan-400/10 border border-cyan-400/30 px-4 py-3 text-sm text-cyan-200 text-center">
+                Vielen Dank! Ihre Nachricht wurde erfolgreich gesendet.
+              </p>
+              <p id="cf-error" class="mt-4 hidden rounded-xl bg-red-400/10 border border-red-400/30 px-4 py-3 text-sm text-red-300 text-center">
+                Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt an info@mailaender-it.de
+              </p>
+            </form>
+          </div>
+
+        </div>
+      </section>
+    </main>
+
+    <footer class="mt-8 border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <p class="font-display text-sm font-semibold text-slate-300">Öffnungszeiten</p>
+            <ul class="mt-3 space-y-1 text-sm text-slate-400">
+              <li>Montag – Freitag: 08 bis 18 Uhr</li>
+              <li>Samstag: nach Rücksprache</li>
+              <li>Sonn- und Feiertags: geschlossen</li>
+            </ul>
+          </div>
+          <div>
+            <p class="font-display text-sm font-semibold text-slate-300">Kontakt</p>
+            <ul class="mt-3 space-y-1 text-sm text-slate-400">
+              <li><a href="tel:+4920646723020" class="hover:text-cyan-300 transition">+49 (0) 2064 627302 0</a></li>
+              <li><a href="mailto:info@mailaender-it.de" class="hover:text-cyan-300 transition">info@mailaender-it.de</a></li>
+            </ul>
+          </div>
+          <div>
+            <p class="font-display text-sm font-semibold text-slate-300">Navigation</p>
+            <ul class="mt-3 space-y-1 text-sm text-slate-400">
+              <li><a href="services.html" class="hover:text-cyan-300 transition">Services</a></li>
+              <li><a href="telefonie.html" class="hover:text-cyan-300 transition">Telefonie</a></li>
+              <li><a href="sicherheit.html" class="hover:text-cyan-300 transition">Sicherheit</a></li>
+              <li><a href="veeam.html" class="hover:text-cyan-300 transition">Veeam Backup</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
+          <p class="text-sm text-slate-500">Mailänder IT &copy; 2020 – 2024</p>
+          <div class="flex gap-5 text-sm text-slate-500">
+            <a href="datenschutz.html" class="hover:text-slate-300 transition">Datenschutzerklärung</a>
+            <a href="impressum.html" class="hover:text-slate-300 transition">Impressum</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const header = document.getElementById("site-header");
+      const menuOpen = document.getElementById("menu-open");
+      const menuClose = document.getElementById("menu-close");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const menuOverlay = document.getElementById("menu-overlay");
+      const logosMarquee = document.querySelector(".logos-marquee");
+      const logosTrack = document.querySelector(".scrolling-logos");
+      const bentoCards = document.querySelectorAll(".bento-card");
+
+      bentoCards.forEach((card) => {
+        const resetGlow = () => {
+          card.style.setProperty("--mx", "50%");
+          card.style.setProperty("--my", "50%");
+        };
+
+        card.addEventListener("pointermove", (event) => {
+          const rect = card.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          card.style.setProperty("--mx", `${x}px`);
+          card.style.setProperty("--my", `${y}px`);
+        });
+
+        card.addEventListener("pointerleave", resetGlow);
+        resetGlow();
+      });
+
+      if (logosMarquee && logosTrack) {
+        const originalItems = Array.from(logosTrack.children);
+        originalItems.forEach((item) => {
+          const clone = item.cloneNode(true);
+          clone.setAttribute("aria-hidden", "true");
+          logosTrack.appendChild(clone);
+        });
+
+        let loopDistance = logosTrack.scrollWidth / 2;
+        let offset = 0;
+        const baseSpeed = 64;
+        const slowSpeed = 24;
+        let currentSpeed = baseSpeed;
+        let targetSpeed = baseSpeed;
+        let rafId = 0;
+        let lastTimestamp = 0;
+        const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+        const setSlowMode = (slow) => {
+          targetSpeed = slow ? slowSpeed : baseSpeed;
+        };
+
+        const updateLoopDistance = () => {
+          loopDistance = logosTrack.scrollWidth / 2;
+          if (offset <= -loopDistance) {
+            offset %= loopDistance;
+          }
+        };
+
+        Array.from(logosTrack.querySelectorAll("img")).forEach((img) => {
+          if (!img.complete) {
+            img.addEventListener("load", updateLoopDistance, { once: true });
+          }
+        });
+        window.addEventListener("load", updateLoopDistance);
+
+        const animateLogos = (timestamp) => {
+          if (!lastTimestamp) {
+            lastTimestamp = timestamp;
+          }
+
+          const deltaSeconds = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
+          lastTimestamp = timestamp;
+          currentSpeed += (targetSpeed - currentSpeed) * Math.min(deltaSeconds * 6, 1);
+          offset -= currentSpeed * deltaSeconds;
+
+          if (offset <= -loopDistance) {
+            offset += loopDistance;
+          }
+
+          logosTrack.style.transform = `translate3d(${offset}px, 0, 0)`;
+          rafId = requestAnimationFrame(animateLogos);
+        };
+
+        const startAnimation = () => {
+          if (reduceMotionQuery.matches || rafId) return;
+          lastTimestamp = 0;
+          rafId = requestAnimationFrame(animateLogos);
+        };
+
+        const stopAnimation = () => {
+          if (!rafId) return;
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+          logosTrack.style.transform = "translate3d(0, 0, 0)";
+        };
+
+        logosMarquee.addEventListener("mouseenter", () => setSlowMode(true));
+        logosMarquee.addEventListener("mouseleave", () => setSlowMode(false));
+
+        window.addEventListener("resize", updateLoopDistance);
+
+        if (typeof reduceMotionQuery.addEventListener === "function") {
+          reduceMotionQuery.addEventListener("change", (event) => {
+            if (event.matches) {
+              stopAnimation();
+              return;
+            }
+
+            updateLoopDistance();
+            startAnimation();
+          });
+        }
+
+        startAnimation();
+      }
+
+      function setMenu(open) {
+        mobileMenu.dataset.open = String(open);
+        mobileMenu.setAttribute("aria-hidden", String(!open));
+        menuOverlay.classList.toggle("hidden", !open);
+        menuOpen.setAttribute("aria-expanded", String(open));
+      }
+
+      menuOpen.addEventListener("click", () => setMenu(true));
+      menuClose.addEventListener("click", () => setMenu(false));
+      menuOverlay.addEventListener("click", () => setMenu(false));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") setMenu(false);
+      });
+
+      document.querySelectorAll("#mobile-menu a").forEach((link) => {
+        link.addEventListener("click", () => setMenu(false));
+      });
+
+      window.addEventListener("scroll", () => {
+        const active = window.scrollY > 8;
+        header.classList.toggle("border-white/15", active);
+        header.classList.toggle("backdrop-blur", active);
+      });
+
+      document.querySelectorAll(".service-toggle").forEach((button) => {
+        button.addEventListener("click", () => {
+          const detail = button.nextElementSibling;
+          const expanded = button.getAttribute("aria-expanded") === "true";
+          button.setAttribute("aria-expanded", String(!expanded));
+          button.textContent = expanded ? "Mehr anzeigen" : "Weniger anzeigen";
+          detail.classList.toggle("hidden", expanded);
+        });
+      });
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+
+      document.querySelectorAll("[data-reveal]").forEach((el, i) => {
+        el.classList.add("reveal");
+        el.style.transitionDelay = `${Math.min(i * 60, 320)}ms`;
+        observer.observe(el);
+      });
+
+      // ── Pointer-glow on service cards ──────────────────────────
+      document.querySelectorAll(".service-card").forEach((card) => {
+        card.addEventListener("pointermove", (e) => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+          card.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+        });
+      });
+
+      // ── Contact form async submit ───────────────────────────────
+      const contactForm = document.getElementById("contact-form");
+      if (contactForm) {
+        contactForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("cf-submit");
+          const successMsg = document.getElementById("cf-success");
+          const errorMsg = document.getElementById("cf-error");
+          btn.disabled = true;
+          btn.textContent = "Wird gesendet …";
+          successMsg.classList.add("hidden");
+          errorMsg.classList.add("hidden");
+          try {
+            const res = await fetch(contactForm.action, {
+              method: "POST",
+              body: new FormData(contactForm),
+              headers: { Accept: "application/json" },
+            });
+            if (res.ok) {
+              successMsg.classList.remove("hidden");
+              contactForm.reset();
+            } else {
+              errorMsg.classList.remove("hidden");
+            }
+          } catch (_) {
+            errorMsg.classList.remove("hidden");
+          }
+          btn.disabled = false;
+          btn.textContent = "Nachricht senden";
+        });
+      }
+    </script>
+  </body>
+</html>

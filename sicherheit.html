@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mailänder IT | Sicherheit</title>
+    <meta
+      name="description"
+      content="Videoüberwachung und Alarmanlagen für Unternehmen in Dinslaken und am Niederrhein – von Mailänder IT Beratung."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#0f172a",
+              cyanx: "#22d3ee",
+              electric: "#38bdf8",
+            },
+            fontFamily: {
+              sans: ["Manrope", "sans-serif"],
+              display: ["Sora", "sans-serif"],
+              tight: ["Inter Tight", "sans-serif"],
+            },
+            boxShadow: {
+              glow: "0 0 0 1px rgba(56,189,248,.25), 0 25px 80px rgba(15,23,42,.5)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      :root { color-scheme: dark; }
+      body { background-color: #0b1120; }
+
+      .grid-background {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100vh; z-index: -1;
+        perspective: 4px; transform-style: preserve-3d;
+      }
+      .grid-pattern {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        transform: translateZ(-1px) scale(1.25);
+        background-image:
+          linear-gradient(rgba(0,255,242,0.05) 1px, transparent 1px),
+          linear-gradient(to right, rgba(0,255,242,0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(circle at center, white 0%, transparent 80%);
+      }
+
+      .glass {
+        background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.16);
+      }
+
+      .reveal {
+        opacity: 0; transform: translateY(24px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+      .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+      .mobile-drawer { transition: transform 0.35s ease; }
+      .mobile-drawer[data-open="false"] { transform: translateX(100%); }
+      .mobile-drawer[data-open="true"] { transform: translateX(0); }
+
+      /* ── shared card base ── */
+      .sec-card {
+        --mx: 50%; --my: 50%;
+        position: relative; overflow: hidden;
+        border-radius: 1.15rem;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+        backdrop-filter: blur(16px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 22px 40px rgba(2,6,23,0.22);
+        transition: transform 260ms cubic-bezier(0.22,1,0.36,1), box-shadow 260ms ease;
+      }
+      .sec-card::before {
+        content: ""; position: absolute; inset: 0; border-radius: inherit;
+        background: radial-gradient(220px circle at var(--mx) var(--my), rgba(56,189,248,0.18), rgba(56,189,248,0) 62%);
+        opacity: 0; transition: opacity 220ms ease; pointer-events: none;
+      }
+      .sec-card:hover::before { opacity: 1; }
+      .sec-card:hover {
+        transform: translateY(-3px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 26px 44px rgba(2,6,23,0.28);
+      }
+
+      /* ── hero ── */
+      .sec-hero {
+        position: relative; overflow: hidden;
+        border-radius: 1.75rem; padding: 1.5rem;
+        background:
+          radial-gradient(65% 90% at 15% 10%, rgba(15,40,80,0.9), transparent 45%),
+          radial-gradient(55% 85% at 88% 8%, rgba(10,30,60,0.7), transparent 42%),
+          radial-gradient(70% 90% at 10% 100%, rgba(0,50,80,0.5), transparent 54%),
+          linear-gradient(140deg, rgba(8,20,45,0.95), rgba(5,15,35,0.98));
+        box-shadow: 0 35px 80px rgba(2,6,23,0.3);
+      }
+      .sec-hero::before {
+        content: ""; position: absolute; inset: 0;
+        background:
+          linear-gradient(rgba(34,211,238,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px);
+        background-size: 80px 80px; opacity: 0.5; pointer-events: none;
+      }
+
+      /* ── section title rule ── */
+      .sec-section-title {
+        display: flex; align-items: center; gap: 0.9rem;
+      }
+      .sec-section-title::after {
+        content: ""; height: 1px; flex: 1;
+        background: linear-gradient(90deg, rgba(148,163,184,0.28), rgba(148,163,184,0.05));
+      }
+
+      /* ── image frame ── */
+      .sec-shot {
+        overflow: hidden; border-radius: 1.2rem;
+        border: 1px solid rgba(255,255,255,0.14);
+        background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+        box-shadow: 0 18px 34px rgba(2,6,23,0.22);
+      }
+      .sec-shot img { display: block; width: 100%; height: auto; object-fit: cover; }
+
+      /* ══════════════════════════════════════
+         CAMERA ANIMATION
+      ══════════════════════════════════════ */
+      .cam-wrapper {
+        position: relative;
+        display: flex; align-items: center; justify-content: center;
+      }
+
+      /* outer radar ring */
+      .cam-ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 1.5px solid rgba(34,211,238,0.35);
+        animation: cam-ring-pulse 2.8s ease-in-out infinite;
+        pointer-events: none;
+      }
+      .cam-ring-1 { width: 105%; height: 105%; animation-delay: 0s; }
+      .cam-ring-2 { width: 120%; height: 120%; animation-delay: 0.9s; opacity: 0.6; }
+      .cam-ring-3 { width: 137%; height: 137%; animation-delay: 1.8s; opacity: 0.35; }
+
+      @keyframes cam-ring-pulse {
+        0%   { transform: scale(0.92); opacity: 0.0; }
+        25%  { opacity: 1; }
+        100% { transform: scale(1.05); opacity: 0.0; }
+      }
+
+      /* radar sweep */
+      .cam-radar {
+        position: absolute;
+        width: 90%; height: 90%;
+        border-radius: 50%;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .cam-radar::after {
+        content: "";
+        position: absolute; inset: 0;
+        background: conic-gradient(
+          from 0deg,
+          rgba(34,211,238,0) 0deg,
+          rgba(34,211,238,0.18) 25deg,
+          rgba(34,211,238,0.06) 50deg,
+          rgba(34,211,238,0) 90deg
+        );
+        animation: cam-sweep 4s linear infinite;
+        border-radius: 50%;
+      }
+      @keyframes cam-sweep {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+
+      /* scan line */
+      .cam-scan-line {
+        position: absolute; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent 0%, rgba(34,211,238,0.6) 40%, rgba(34,211,238,0.9) 50%, rgba(34,211,238,0.6) 60%, transparent 100%);
+        animation: cam-scan 3.5s ease-in-out infinite;
+        pointer-events: none;
+        box-shadow: 0 0 8px rgba(34,211,238,0.5);
+        border-radius: 1px;
+      }
+      @keyframes cam-scan {
+        0%   { top: 8%; opacity: 0; }
+        5%   { opacity: 1; }
+        95%  { opacity: 1; }
+        100% { top: 92%; opacity: 0; }
+      }
+
+      /* camera image float */
+      .cam-float {
+        animation: cam-float 5s ease-in-out infinite;
+        position: relative; z-index: 2;
+        filter: drop-shadow(0 0 24px rgba(34,211,238,0.25));
+      }
+      @keyframes cam-float {
+        0%, 100% { transform: translateY(0px); }
+        50%       { transform: translateY(-8px); }
+      }
+
+      /* corner bracket decoration */
+      .cam-bracket {
+        position: absolute;
+        width: 18px; height: 18px;
+        pointer-events: none;
+        opacity: 0.7;
+      }
+      .cam-bracket-tl { top: 4px; left: 4px;
+        border-top: 2px solid rgba(34,211,238,0.7);
+        border-left: 2px solid rgba(34,211,238,0.7); }
+      .cam-bracket-tr { top: 4px; right: 4px;
+        border-top: 2px solid rgba(34,211,238,0.7);
+        border-right: 2px solid rgba(34,211,238,0.7); }
+      .cam-bracket-bl { bottom: 4px; left: 4px;
+        border-bottom: 2px solid rgba(34,211,238,0.7);
+        border-left: 2px solid rgba(34,211,238,0.7); }
+      .cam-bracket-br { bottom: 4px; right: 4px;
+        border-bottom: 2px solid rgba(34,211,238,0.7);
+        border-right: 2px solid rgba(34,211,238,0.7); }
+
+      /* ── product gallery grid ── */
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+      }
+      .product-tile {
+        position: relative; overflow: hidden;
+        border-radius: 1rem;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+        backdrop-filter: blur(12px);
+        aspect-ratio: 1;
+        cursor: pointer;
+        transition: transform 240ms cubic-bezier(0.22,1,0.36,1), border-color 240ms ease;
+      }
+      .product-tile:hover {
+        transform: translateY(-4px) scale(1.02);
+        border-color: rgba(34,211,238,0.4);
+      }
+      .product-tile img {
+        width: 100%; height: 100%;
+        object-fit: cover; display: block;
+        transition: transform 350ms ease;
+      }
+      .product-tile:hover img { transform: scale(1.06); }
+      .product-tile-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(180deg, transparent 50%, rgba(2,6,23,0.7) 100%);
+        pointer-events: none;
+      }
+
+      @media (max-width: 767px) {
+        .sec-hero { padding: 1.1rem; border-radius: 1.3rem; }
+        .product-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-slate-100 antialiased">
+    <div class="grid-background"><div class="grid-pattern"></div></div>
+    <a href="#main" class="sr-only focus:not-sr-only focus:p-3 focus:bg-slate-900 focus:text-white">Zum Inhalt springen</a>
+
+    <!-- ═══ HEADER ═══ -->
+    <header id="site-header" class="sticky top-0 z-50 border-b border-transparent">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="glass mt-3 mb-3 rounded-2xl px-4 py-3">
+          <div class="flex items-center justify-between gap-4">
+            <a href="index.html" class="flex items-center gap-3">
+              <img src="Mailaender%20logo.png" alt="Mailänder IT Logo" class="h-20 w-auto rounded-md" />
+              <div>
+                <p class="font-display text-sm tracking-wide text-slate-200">Mailänder IT</p>
+                <p class="text-xs text-slate-400">Dinslaken & Region</p>
+              </div>
+            </a>
+            <nav class="hidden md:block" aria-label="Hauptnavigation">
+              <ul class="flex items-center gap-6 text-sm">
+                <li><a class="hover:text-cyan-300" href="index.html">Home</a></li>
+                <li><a class="hover:text-cyan-300" href="services.html">Services</a></li>
+                <li><a class="hover:text-cyan-300" href="telefonie.html">Telefonie</a></li>
+                <li><a class="text-cyan-400 font-semibold" href="sicherheit.html">Sicherheit</a></li>
+                <li><a class="hover:text-cyan-300" href="veeam.html">Veeam Backup</a></li>
+              </ul>
+            </nav>
+            <button id="menu-open" type="button"
+              class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 bg-white/5"
+              aria-label="Menü öffnen" aria-controls="mobile-menu" aria-expanded="false">
+              <span class="text-lg">☰</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div id="menu-overlay" class="fixed inset-0 z-40 hidden bg-slate-950/70" aria-hidden="true"></div>
+    <aside id="mobile-menu" class="mobile-drawer fixed top-0 right-0 z-50 h-full w-80 max-w-[88vw] glass p-6 md:hidden"
+      data-open="false" aria-label="Mobiles Menü" aria-hidden="true">
+      <div class="mb-8 flex items-center justify-between">
+        <p class="font-display text-lg">Navigation</p>
+        <button id="menu-close" type="button" class="rounded-lg border border-white/20 px-3 py-1" aria-label="Menü schließen">✕</button>
+      </div>
+      <nav aria-label="Mobile Hauptnavigation">
+        <ul class="space-y-4 text-lg">
+          <li><a class="block" href="index.html">Home</a></li>
+          <li><a class="block" href="services.html">Services</a></li>
+          <li><a class="block" href="telefonie.html">Telefonie</a></li>
+          <li><a class="block text-cyan-400 font-semibold" href="sicherheit.html">Sicherheit</a></li>
+          <li><a class="block" href="veeam.html">Veeam Backup</a></li>
+        </ul>
+      </nav>
+      <div class="mt-10 border-t border-white/15 pt-6 text-sm text-slate-300">
+        <p>+49 (0) 2064 627302 0</p>
+        <p>info@mailaender-it.de</p>
+        <p class="mt-2 text-slate-400">Mo-Fr 08:00–18:00 Uhr</p>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN ═══ -->
+    <main id="main" class="mx-auto max-w-7xl px-4 pb-20 pt-12 sm:px-6 lg:px-8 lg:pt-16">
+
+      <!-- 1 ── HERO ─────────────────────────────────────────── -->
+      <section class="sec-hero reveal grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center" data-reveal>
+        <div class="relative z-10">
+          <p class="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100/80">Videoüberwachung & Alarmanlagen</p>
+          <h1 class="font-display text-4xl font-semibold leading-tight text-white sm:text-5xl">
+            Moderne Sicherheit<br>für Ihr Unternehmen
+          </h1>
+          <p class="mt-5 max-w-xl text-base text-slate-200/85 sm:text-lg">
+            Schützen Sie Ihr Unternehmen vor ungebetenen Gästen und behalten Sie stets den Überblick über Ihr Gelände. Mit Videoüberwachung und Alarmanlagen der Mailänder IT sind Sie auf der sicheren Seite.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#funktionen" class="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Funktionen entdecken</a>
+            <a href="#produkte" class="rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:border-cyan-300 hover:text-cyan-200">Produktübersicht</a>
+          </div>
+        </div>
+
+        <!-- Camera with animation -->
+        <figure class="relative z-10 flex items-center justify-center py-6">
+          <div class="cam-wrapper w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80">
+            <!-- radar rings -->
+            <div class="cam-ring cam-ring-1"></div>
+            <div class="cam-ring cam-ring-2"></div>
+            <div class="cam-ring cam-ring-3"></div>
+            <!-- radar sweep -->
+            <div class="cam-radar"></div>
+            <!-- corner brackets -->
+            <div class="cam-bracket cam-bracket-tl"></div>
+            <div class="cam-bracket cam-bracket-tr"></div>
+            <div class="cam-bracket cam-bracket-bl"></div>
+            <div class="cam-bracket cam-bracket-br"></div>
+            <!-- scan line -->
+            <div class="cam-scan-line"></div>
+            <!-- camera image -->
+            <img
+              src="sicherheit%20bilder/Sicherheit%20Kamera%20start.webp"
+              alt="Sicherheitskamera für Videoüberwachung"
+              class="cam-float w-52 h-52 sm:w-60 sm:h-60 lg:w-64 lg:h-64 object-contain"
+              fetchpriority="high"
+            />
+          </div>
+        </figure>
+      </section>
+
+      <!-- 2 ── FEATURE GRID ─────────────────────────────────── -->
+      <section class="mt-14 reveal scroll-mt-28" id="funktionen" data-reveal>
+        <div class="sec-section-title mb-2">
+          <h2 class="font-display text-3xl text-white sm:text-4xl">Die wichtigsten Funktionen</h2>
+        </div>
+        <p class="mb-8 text-slate-400">Entdecken Sie die verschiedenen Funktionen</p>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- 1 Bewegungserkennung -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Bewegungserkennung</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Intelligente Erkennung von Bewegungen im Überwachungsbereich – sofortige Alarmierung bei unbefugtem Zutritt, auch nachts.</p>
+          </div>
+
+          <!-- 2 Videospeicherung -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Videospeicherung</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Lokale und netzwerkbasierte Aufzeichnung auf NAS oder NVR – zuverlässige Langzeitspeicherung für lückenlose Dokumentation.</p>
+          </div>
+
+          <!-- 3 Cloudbackup -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Cloudbackup</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Automatisches Backup Ihrer Aufnahmen in die Cloud – sicher, verschlüsselt und jederzeit abrufbar, auch bei lokalen Ausfällen.</p>
+          </div>
+
+          <!-- 4 Farb-Nachtsicht -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Farb-Nachtsicht</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Full-Color-Nachtsicht dank modernster Sensortechnik und integrierter Beleuchtung – klare Farbbilder auch in absoluter Dunkelheit.</p>
+          </div>
+
+          <!-- 5 Moderne App -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Moderne App</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Live-Streams, Ereignisbenachrichtigungen und Kameraverwaltung bequem per Smartphone – für iOS und Android verfügbar.</p>
+          </div>
+
+          <!-- 6 Bis zu 8K Auflösung -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Bis zu 8K Auflösung</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Hochauflösende Bilder bis 8K ermöglichen gestochen scharfe Details – gesichter, Kennzeichen und Objekte stets klar erkennbar.</p>
+          </div>
+
+          <!-- 7 Funk & Kabel Alarmanlagen -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Funk & Kabel Alarmanlagen</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Flexible Systemwahl: drahtlose Funkanlagen für nachrüstfreundliche Installation oder kabelgebundene Anlagen für maximale Zuverlässigkeit.</p>
+          </div>
+
+          <!-- 8 Modernes Design -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Modernes Design</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Schlanke, unauffällige Hardware die sich harmonisch in jede Umgebung integriert – professionell und ästhetisch zugleich.</p>
+          </div>
+
+          <!-- 9 Sicherheitsdienst anbinden -->
+          <div class="sec-card p-5" data-reveal>
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/15 text-cyan-300">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 class="font-display text-base font-semibold text-white">Sicherheitsdienst anbinden</h3>
+            <p class="mt-1.5 text-sm text-slate-400">Direkte Alarmweiterleitung an Sicherheitsdienste oder Leitstellen – automatisierte Benachrichtigungsketten für maximalen Schutz.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 3 ── PRODUCT GALLERY ───────────────────────────────── -->
+      <section class="mt-14 reveal scroll-mt-28" id="produkte" data-reveal>
+        <div class="sec-section-title mb-2">
+          <h2 class="font-display text-3xl text-white sm:text-4xl">Produktübersicht</h2>
+        </div>
+        <p class="mb-8 text-slate-400">Hochwertige Hardware für zuverlässige Sicherheitslösungen</p>
+
+        <div class="product-grid">
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider1.webp" alt="Sicherheitsprodukt 1" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider2%20.webp" alt="Sicherheitsprodukt 2" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider3%20.webp" alt="Sicherheitsprodukt 3" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider4.webp" alt="Sicherheitsprodukt 4" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider%205.webp" alt="Sicherheitsprodukt 5" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider6.jpg" alt="Sicherheitsprodukt 6" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider7.webp" alt="Sicherheitsprodukt 7" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider8.webp" alt="Sicherheitsprodukt 8" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider9.jpg" alt="Sicherheitsprodukt 9" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+          <div class="product-tile">
+            <img src="sicherheit%20bilder/Sicherheit%20slider10.jpg" alt="Sicherheitsprodukt 10" loading="lazy" />
+            <div class="product-tile-overlay"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 ── CTA ──────────────────────────────────────────── -->
+      <section class="mt-14 reveal" data-reveal>
+        <div class="sec-card grid gap-6 p-8 lg:grid-cols-2 lg:items-center lg:p-10">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300/80">Überzeugen Sie sich selbst!</p>
+            <h2 class="mt-2 font-display text-3xl text-white sm:text-4xl">Kontaktieren Sie uns</h2>
+            <p class="mt-3 text-slate-400">Wir beraten Sie gerne zu Videoüberwachungs- und Alarmanlage-Lösungen für Ihr Unternehmen.</p>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row lg:justify-end">
+            <a href="index.html#contact" class="rounded-xl bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 text-center transition hover:bg-cyan-300">Zum Kontaktformular</a>
+            <a href="tel:+4920646723020" class="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-center text-white transition hover:border-cyan-300 hover:text-cyan-200">+49 (0) 2064 627302 0</a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="mt-8 border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+
+          <div>
+            <p class="font-display text-sm font-semibold text-slate-300">Öffnungszeiten</p>
+            <ul class="mt-3 space-y-1 text-sm text-slate-400">
+              <li>Montag – Freitag: 08 bis 18 Uhr</li>
+              <li>Samstag: nach Rücksprache</li>
+              <li>Sonn- und Feiertags: geschlossen</li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="font-display text-sm font-semibold text-slate-300">Kontakt</p>
+            <ul class="mt-3 space-y-1 text-sm text-slate-400">
+              <li><a href="tel:+4920646723020" class="hover:text-cyan-300 transition">+49 (0) 2064 627302 0</a></li>
+              <li><a href="mailto:info@mailaender-it.de" class="hover:text-cyan-300 transition">info@mailaender-it.de</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="font-display text-sm font-semibold text-slate-300">Navigation</p>
+            <ul class="mt-3 space-y-1 text-sm text-slate-400">
+              <li><a href="index.html" class="hover:text-cyan-300 transition">Home</a></li>
+              <li><a href="services.html" class="hover:text-cyan-300 transition">Services</a></li>
+              <li><a href="telefonie.html" class="hover:text-cyan-300 transition">Telefonie</a></li>
+              <li><a href="veeam.html" class="hover:text-cyan-300 transition">Veeam Backup</a></li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
+          <p class="text-sm text-slate-500">Mailänder IT &copy; 2020 – 2024</p>
+          <div class="flex gap-5 text-sm text-slate-500">
+            <a href="datenschutz.html" class="hover:text-slate-300 transition">Datenschutzerklärung</a>
+            <a href="impressum.html" class="hover:text-slate-300 transition">Impressum</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // ── Mobile menu ───────────────────────────────────────────
+      const header = document.getElementById("site-header");
+      const menuOpen = document.getElementById("menu-open");
+      const menuClose = document.getElementById("menu-close");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const menuOverlay = document.getElementById("menu-overlay");
+
+      function setMenu(open) {
+        mobileMenu.dataset.open = String(open);
+        mobileMenu.setAttribute("aria-hidden", String(!open));
+        menuOverlay.classList.toggle("hidden", !open);
+        menuOpen.setAttribute("aria-expanded", String(open));
+      }
+      menuOpen.addEventListener("click", () => setMenu(true));
+      menuClose.addEventListener("click", () => setMenu(false));
+      menuOverlay.addEventListener("click", () => setMenu(false));
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
+      document.querySelectorAll("#mobile-menu a").forEach((l) => l.addEventListener("click", () => setMenu(false)));
+
+      window.addEventListener("scroll", () => {
+        const active = window.scrollY > 8;
+        header.classList.toggle("border-white/15", active);
+        header.classList.toggle("backdrop-blur", active);
+      });
+
+      // ── Scroll reveal ─────────────────────────────────────────
+      const revealObserver = new IntersectionObserver(
+        (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-visible"); revealObserver.unobserve(e.target); } }),
+        { threshold: 0.1 }
+      );
+      document.querySelectorAll("[data-reveal]").forEach((el, i) => {
+        el.classList.add("reveal");
+        el.style.transitionDelay = `${Math.min(i * 55, 250)}ms`;
+        revealObserver.observe(el);
+      });
+
+      // ── Pointer-glow on cards ─────────────────────────────────
+      document.querySelectorAll(".sec-card").forEach((card) => {
+        card.addEventListener("pointermove", (e) => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+          card.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+        });
+      });
+    </script>
+  </body>
+</html>
