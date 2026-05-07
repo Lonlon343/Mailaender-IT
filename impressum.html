@@ -59,6 +59,22 @@
       }
       .prose-dark a { color: rgb(125,211,252); }
       .prose-dark a:hover { color: rgb(186,230,253); }
+
+      .logo-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        padding: 0.375rem;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, .25), 0 4px 24px rgba(15, 23, 42, .4);
+        transition: background 0.4s ease, box-shadow 0.4s ease, padding 0.35s ease;
+      }
+      .logo-pill.scrolled {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03));
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+        padding: 0.125rem;
+      }
     </style>
   </head>
   <body class="min-h-screen text-slate-100 antialiased">
@@ -71,7 +87,9 @@
         <div class="glass mt-3 mb-3 rounded-2xl px-4 py-3">
           <div class="flex items-center justify-between gap-4">
             <a href="index.html" class="flex items-center gap-3">
-              <img src="Mailaender%20logo.png" alt="Mailänder IT Logo" class="h-10 w-auto rounded-md bg-white/10 p-1" />
+              <span class="logo-pill">
+                <img src="Mailaender%20logo.png" alt="Mailänder IT Logo" class="h-10 w-auto" />
+              </span>
               <div class="hidden md:block">
                 <p class="font-display text-sm tracking-wide text-slate-200">Mailänder IT</p>
                 <p class="text-xs text-slate-400">Dinslaken &amp; Region</p>
@@ -247,10 +265,13 @@
         link.addEventListener("click", () => setMenu(false));
       });
 
+      const logoPill = document.querySelector(".logo-pill");
+
       window.addEventListener("scroll", () => {
         const active = window.scrollY > 8;
         header.classList.toggle("border-white/15", active);
         header.classList.toggle("backdrop-blur", active);
+        logoPill?.classList.toggle("scrolled", active);
       });
     </script>
   </body>
